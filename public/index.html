@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RIFON – Pagos al instante</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--v:#0f4a28;--vm:#1a6b3a;--vg:#2ecc70;--am:#f0c400;--tx:#f0f0f0;--gr:#8a9a8f;--bg:#091f11;--card:rgba(15,74,40,.55);--bd:rgba(240,196,0,.22);}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{min-height:100vh;font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display:flex;align-items:center;justify-content:center;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(46,204,112,.1) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 80% 90%,rgba(240,196,0,.07) 0%,transparent 60%);z-index:0;}
+    .bg-b span{position:fixed;border-radius:50%;opacity:.05;animation:flt linear infinite;}
+    .bg-b span:nth-child(1){width:260px;height:260px;background:var(--am);top:-70px;left:-70px;animation-duration:18s;}
+    .bg-b span:nth-child(2){width:180px;height:180px;background:var(--vg);bottom:-50px;right:-50px;animation-duration:14s;animation-delay:-5s;}
+    @keyframes flt{0%,100%{transform:translate(0,0)}50%{transform:translate(16px,-22px)}}
+    .container{position:relative;z-index:1;width:100%;max-width:460px;padding:20px;}
+    .logo-wrap{text-align:center;margin-bottom:26px;animation:sd .5s ease;}
+    @keyframes sd{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
+    .logo-icon{width:68px;height:68px;background:linear-gradient(135deg,var(--am),var(--vg));border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 34px rgba(240,196,0,.3);margin-bottom:10px;}
+    .app-name{font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;background:linear-gradient(90deg,var(--am),var(--vg));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;}
+    .app-slogan{font-size:13px;color:var(--gr);margin-top:2px;letter-spacing:.5px;}
+    .card{background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:26px;backdrop-filter:blur(18px);box-shadow:0 20px 56px rgba(0,0,0,.4);animation:fu .5s .1s ease both;}
+    @keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+    .tabs{display:flex;gap:5px;margin-bottom:22px;background:rgba(0,0,0,.25);border-radius:10px;padding:4px;}
+    .tab-btn{flex:1;padding:10px;border:none;border-radius:7px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--gr);background:transparent;}
+    .tab-btn.active{background:linear-gradient(135deg,var(--am),#d4a900);color:var(--v);box-shadow:0 4px 14px rgba(240,196,0,.28);}
+    .form-panel{display:none;}.form-panel.active{display:block;animation:fi .22s ease;}
+    @keyframes fi{from{opacity:0}to{opacity:1}}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .field{margin-bottom:14px;}
+    .field label{display:block;font-size:11px;font-weight:600;color:var(--gr);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;}
+    .fw{position:relative;display:flex;align-items:center;}
+    .fw i.ic{position:absolute;left:12px;color:var(--am);font-size:13px;z-index:1;}
+    .fw input{width:100%;padding:12px 12px 12px 38px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:var(--tx);font-size:14px;font-family:'Inter',sans-serif;transition:border .2s;outline:none;}
+    .fw input:focus{border-color:var(--am);box-shadow:0 0 0 2px rgba(240,196,0,.1);}
+    .fw input::placeholder{color:rgba(160,160,160,.5);}
+    .eye{position:absolute;right:10px;background:none;border:none;cursor:pointer;color:var(--gr);font-size:13px;padding:4px;}
+    .eye:hover{color:var(--am);}
+    .input-hint{font-size:11px;color:var(--gr);margin-top:3px;padding-left:2px;}
+    .btn-main{width:100%;padding:14px;background:linear-gradient(135deg,var(--am),#d4a900);color:var(--v);font-weight:800;font-size:14px;font-family:'Montserrat',sans-serif;border:none;border-radius:11px;cursor:pointer;transition:all .2s;box-shadow:0 6px 20px rgba(240,196,0,.28);letter-spacing:.5px;}
+    .btn-main:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(240,196,0,.38);}
+    .btn-main:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+    .alert{display:none;padding:10px 14px;border-radius:9px;font-size:13px;margin-bottom:14px;line-height:1.5;}
+    .alert.error{background:rgba(255,82,82,.12);border:1px solid rgba(255,82,82,.28);color:#ff8888;display:block;}
+    .alert.success{background:rgba(46,204,112,.12);border:1px solid rgba(46,204,112,.28);color:var(--vg);display:block;}
+    .spinner{display:none;width:18px;height:18px;border:2px solid transparent;border-top-color:var(--v);border-radius:50%;animation:sp .7s linear infinite;margin:0 auto 12px;}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    .hint{text-align:center;font-size:12px;color:var(--gr);margin-top:16px;}
+    .hint a{color:var(--am);text-decoration:none;}
+    .promo-banner{background:linear-gradient(135deg,rgba(46,204,112,.13),rgba(240,196,0,.08));border:1px solid rgba(46,204,112,.22);border-radius:11px;padding:11px 13px;margin-bottom:18px;text-align:center;}
+    .promo-banner .pt{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:var(--am);}
+    .promo-banner .pd{font-size:12px;color:var(--gr);margin-top:2px;line-height:1.5;}
+  </style>
+</head>
+<body>
+<div class="bg-b"><span></span><span></span></div>
+<div class="container">
+  <div class="logo-wrap">
+    <div class="logo-icon">🎰</div>
+    <div class="app-name">RIFON</div>
+    <div class="app-slogan">Pagos al instante</div>
+  </div>
+  <div class="card">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">Iniciar Sesión</button>
+      <button class="tab-btn" onclick="switchTab('register')">Crear Cuenta</button>
+    </div>
+    <div class="alert" id="alert"></div>
+
+    <!-- LOGIN -->
+    <div class="form-panel active" id="panel-login">
+      <div class="field">
+        <label>Correo electrónico o Teléfono</label>
+        <div class="fw"><i class="ic fa fa-user"></i><input type="text" id="l-login" placeholder="correo@ejemplo.com  ó  99001234" autocomplete="username"></div>
+        <div class="input-hint">Puedes ingresar con tu correo o número de celular</div>
+      </div>
+      <div class="field">
+        <label>Clave</label>
+        <div class="fw"><i class="ic fa fa-lock"></i><input type="password" id="l-clave" placeholder="Tu contraseña" autocomplete="current-password">
+          <button class="eye" onclick="togglePass('l-clave',this)"><i class="fa fa-eye"></i></button></div>
+      </div>
+      <div class="spinner" id="l-spinner"></div>
+      <button class="btn-main" id="l-btn" onclick="doLogin()"><i class="fa fa-sign-in-alt"></i> &nbsp;ENTRAR</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="form-panel" id="panel-register">
+      <div class="promo-banner">
+        <div class="pt">🎁 Sorteo gratis todos los días</div>
+        <div class="pd">Regístrate y elige 1 número gratis cada día sin comprobante de pago</div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Nombre</label>
+          <div class="fw"><i class="ic fa fa-user"></i><input type="text" id="r-nombre" placeholder="Tu nombre"></div>
+        </div>
+        <div class="field"><label>Apellido</label>
+          <div class="fw"><i class="ic fa fa-user"></i><input type="text" id="r-apellido" placeholder="Tu apellido"></div>
+        </div>
+      </div>
+      <div class="field"><label>Correo electrónico</label>
+        <div class="fw"><i class="ic fa fa-envelope"></i><input type="email" id="r-correo" placeholder="tucorreo@ejemplo.com" autocomplete="email"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Celular</label>
+          <div class="fw"><i class="ic fa fa-mobile-alt"></i><input type="tel" id="r-celular" placeholder="99001234"></div>
+        </div>
+        <div class="field"><label>DNI / Identidad</label>
+          <div class="fw"><i class="ic fa fa-id-card"></i><input type="text" id="r-dni" placeholder="0801-..."></div>
+        </div>
+      </div>
+      <div class="field"><label>Clave</label>
+        <div class="fw"><i class="ic fa fa-lock"></i><input type="password" id="r-clave" placeholder="Mínimo 6 caracteres">
+          <button class="eye" onclick="togglePass('r-clave',this)"><i class="fa fa-eye"></i></button></div>
+      </div>
+      <div class="field"><label>Confirmar clave</label>
+        <div class="fw"><i class="ic fa fa-lock"></i><input type="password" id="r-clave2" placeholder="Repite tu contraseña">
+          <button class="eye" onclick="togglePass('r-clave2',this)"><i class="fa fa-eye"></i></button></div>
+      </div>
+      <div class="spinner" id="r-spinner"></div>
+      <button class="btn-main" id="r-btn" onclick="doRegister()"><i class="fa fa-user-plus"></i> &nbsp;CREAR CUENTA</button>
+    </div>
+    <p class="hint">¿Problemas? <a href="https://wa.me/50494411539" target="_blank">WhatsApp soporte</a></p>
+  </div>
+</div>
+<script src="/js/auth.js"></script>
+</body>
+</html>

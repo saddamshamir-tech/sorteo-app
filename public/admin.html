@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RIFON – Panel Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--v:#0f4a28;--vm:#1a6b3a;--vg:#2ecc70;--am:#f0c400;--tx:#f0f0f0;--gr:#8a9a8f;--bg:#091f11;--card:rgba(15,74,40,.42);--dk:rgba(5,18,10,.75);--bd:rgba(240,196,0,.18);--err:#ff5252;--sidebar:220px;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column;}
+    /* ACCESS DENIED */
+    #access-denied{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;}
+    #access-denied.show{display:flex;}
+    /* HEADER */
+    header{background:rgba(5,18,10,.97);border-bottom:1px solid var(--bd);padding:0 20px;flex-shrink:0;position:sticky;top:0;z-index:100;}
+    .hi{display:flex;align-items:center;justify-content:space-between;height:58px;gap:10px;}
+    .brand{display:flex;align-items:center;gap:8px;}
+    .brand-name{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:900;background:linear-gradient(90deg,var(--am),var(--vg));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .admin-pill{background:rgba(240,196,0,.13);border:1px solid rgba(240,196,0,.28);color:var(--am);font-size:11px;font-weight:700;padding:3px 9px;border-radius:50px;font-family:'Montserrat',sans-serif;}
+    .hr{display:flex;align-items:center;gap:8px;}
+    .user-info{font-size:12px;color:var(--gr);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .btn-logout{background:none;border:1px solid rgba(255,82,82,.3);color:#ff8888;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer;}
+    .btn-logout:hover{background:rgba(255,82,82,.13);}
+    /* LAYOUT */
+    #admin-wrap{display:none;flex:1;}
+    #admin-wrap.show{display:flex;}
+    /* SIDEBAR */
+    .sidebar{width:var(--sidebar);background:rgba(5,18,10,.9);border-right:1px solid var(--bd);flex-shrink:0;padding:20px 0;position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;}
+    /* STATS at top of sidebar */
+    .sidebar-stats{padding:0 14px 16px;border-bottom:1px solid var(--bd);margin-bottom:12px;}
+    .sstat{display:flex;flex-direction:column;margin-bottom:10px;}
+    .sstat .sv{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:900;color:var(--am);}
+    .sstat .sl{font-size:10px;color:var(--gr);text-transform:uppercase;letter-spacing:.6px;}
+    /* NAV MENU */
+    .nav-section{font-size:10px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:1px;padding:0 16px;margin-bottom:6px;margin-top:4px;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:all .18s;color:var(--gr);font-size:13px;border-left:3px solid transparent;user-select:none;}
+    .nav-item:hover{background:rgba(240,196,0,.07);color:var(--tx);}
+    .nav-item.active{background:rgba(240,196,0,.1);color:var(--am);border-left-color:var(--am);}
+    .nav-item i{width:18px;text-align:center;font-size:14px;}
+    /* CONTENT */
+    .content{flex:1;padding:24px;overflow-y:auto;max-width:1100px;}
+    /* SECTION PANELS */
+    .panel{display:none;}.panel.active{display:block;animation:fi .2s ease;}
+    @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .panel-title{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:800;color:var(--am);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+    /* FILTER BAR */
+    .filter-bar{background:var(--dk);border:1px solid var(--bd);border-radius:14px;padding:16px 18px;margin-bottom:18px;}
+    .filter-bar h3{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:var(--am);margin-bottom:12px;}
+    .filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+    .fld{display:flex;flex-direction:column;gap:3px;flex:1;min-width:140px;}
+    .fld label{font-size:10px;color:var(--gr);text-transform:uppercase;letter-spacing:.8px;font-weight:600;}
+    .fld input{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 11px;color:var(--tx);font-size:13px;outline:none;font-family:'Inter',sans-serif;transition:border .18s;}
+    .fld input:focus{border-color:var(--am);}
+    .btn-filter{padding:8px 18px;background:linear-gradient(135deg,var(--am),#c99800);color:var(--v);font-weight:800;font-size:12px;font-family:'Montserrat',sans-serif;border:none;border-radius:8px;cursor:pointer;height:36px;transition:all .18s;white-space:nowrap;}
+    .btn-filter:hover{transform:translateY(-1px);}
+    .btn-clear{padding:8px 14px;background:var(--card);border:1px solid var(--bd);color:var(--gr);font-size:12px;border-radius:8px;cursor:pointer;height:36px;transition:all .18s;white-space:nowrap;}
+    .btn-clear:hover{border-color:var(--am);color:var(--tx);}
+    /* TABLE */
+    .table-wrap{background:var(--dk);border:1px solid var(--bd);border-radius:14px;overflow:hidden;}
+    .table-header{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--bd);}
+    .table-header h3{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:var(--am);}
+    .rec-count{font-size:12px;color:var(--gr);}
+    .tbl-scroll{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:12px;}
+    th{background:rgba(15,74,40,.55);padding:10px 13px;text-align:left;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--am);white-space:nowrap;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd);}
+    td{padding:10px 13px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:rgba(15,74,40,.25);}
+    .tid{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--am);}
+    .gtag{background:rgba(46,204,112,.16);color:var(--vg);font-size:10px;font-weight:700;padding:2px 7px;border-radius:50px;font-family:'Montserrat',sans-serif;}
+    .ntag{background:rgba(240,196,0,.13);color:var(--am);font-size:10px;font-weight:700;padding:2px 7px;border-radius:50px;font-family:'Montserrat',sans-serif;}
+    .num-chip{display:inline-block;background:rgba(15,74,40,.7);border:1px solid rgba(240,196,0,.18);border-radius:5px;padding:2px 5px;font-size:10px;margin:1px;white-space:nowrap;}
+    .empty-row td,.loading-row td{text-align:center;color:var(--gr);padding:36px;}
+    .btn-refresh{background:var(--card);border:1px solid var(--bd);color:var(--vg);border-radius:8px;padding:6px 11px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .18s;}
+    .btn-refresh:hover{background:rgba(46,204,112,.12);}
+    .spin{animation:sp .7s linear infinite;}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    /* FREE PLAY TOGGLE PANEL */
+    .fp-card{background:var(--dk);border:1px solid var(--bd);border-radius:16px;padding:24px;max-width:480px;}
+    .fp-card h3{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;color:var(--am);margin-bottom:8px;}
+    .fp-card p{font-size:13px;color:var(--gr);line-height:1.6;margin-bottom:20px;}
+    .toggle-wrap{display:flex;align-items:center;gap:14px;}
+    .toggle-switch{position:relative;width:54px;height:28px;flex-shrink:0;}
+    .toggle-switch input{opacity:0;width:0;height:0;}
+    .toggle-slider{position:absolute;inset:0;background:rgba(100,100,100,.35);border-radius:28px;cursor:pointer;transition:all .3s;}
+    .toggle-slider::before{content:'';position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:all .3s;}
+    .toggle-switch input:checked + .toggle-slider{background:var(--vg);}
+    .toggle-switch input:checked + .toggle-slider::before{transform:translateX(26px);}
+    .toggle-label{font-size:14px;font-weight:600;color:var(--tx);}
+    .fp-status{margin-top:16px;padding:12px 14px;border-radius:10px;font-size:13px;font-weight:600;}
+    .fp-status.on{background:rgba(46,204,112,.12);border:1px solid rgba(46,204,112,.25);color:var(--vg);}
+    .fp-status.off{background:rgba(255,82,82,.12);border:1px solid rgba(255,82,82,.25);color:#ff8888;}
+    /* RULES */
+    .rules-card{background:var(--dk);border:1px solid var(--bd);border-radius:16px;padding:24px;max-width:620px;}
+    .rules-card h3{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;color:var(--am);margin-bottom:16px;}
+    .rule-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+    .rule-item:last-child{border-bottom:none;}
+    .rule-icon{width:36px;height:36px;border-radius:9px;background:rgba(240,196,0,.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+    .rule-text h4{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:var(--am);margin-bottom:3px;}
+    .rule-text p{font-size:12px;color:var(--gr);line-height:1.6;}
+    /* USERS TABLE */
+    .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--am),#c99800);color:var(--v);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;font-family:'Montserrat',sans-serif;flex-shrink:0;}
+    /* RESPONSIVE */
+    @media(max-width:700px){
+      .sidebar{display:none;}
+      #admin-wrap.show{flex-direction:column;}
+      .content{padding:14px;}
+      /* Mobile tab bar instead */
+      .mobile-nav{display:flex;overflow-x:auto;gap:0;background:rgba(5,18,10,.97);border-bottom:1px solid var(--bd);padding:0 10px;}
+      .mobile-nav-btn{flex-shrink:0;padding:10px 14px;font-size:12px;font-family:'Montserrat',sans-serif;font-weight:700;color:var(--gr);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;}
+      .mobile-nav-btn.active{color:var(--am);border-bottom-color:var(--am);}
+    }
+    @media(min-width:701px){.mobile-nav{display:none;}}
+  </style>
+</head>
+<body>
+
+<div id="access-denied">
+  <div style="font-size:60px;margin-bottom:14px">🔐</div>
+  <h2 style="font-family:Montserrat,sans-serif;font-size:22px;color:#ff5252;margin-bottom:8px">Acceso Denegado</h2>
+  <p style="color:#8a9a8f;margin-bottom:18px">Solo el administrador puede acceder a este panel.</p>
+  <button onclick="window.location.href='/'" style="padding:12px 26px;background:linear-gradient(135deg,#f0c400,#c99800);color:#0f4a28;border:none;border-radius:10px;font-weight:800;font-family:Montserrat,sans-serif;cursor:pointer;font-size:14px;">Ir al inicio</button>
+</div>
+
+<header>
+  <div class="hi">
+    <div class="brand">
+      <span style="font-size:22px">🎰</span>
+      <span class="brand-name">RIFON</span>
+      <span class="admin-pill">ADMIN</span>
+    </div>
+    <div class="hr">
+      <span class="user-info" id="admin-user"></span>
+      <button class="btn-logout" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Salir</button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile nav -->
+<nav class="mobile-nav" id="mobile-nav">
+  <button class="mobile-nav-btn active" onclick="showPanel('tickets',this)"><i class="fa fa-ticket-alt"></i> Tickets</button>
+  <button class="mobile-nav-btn" onclick="showPanel('users',this)"><i class="fa fa-users"></i> Usuarios</button>
+  <button class="mobile-nav-btn" onclick="showPanel('freeplay',this)"><i class="fa fa-gift"></i> Jugada Gratis</button>
+  <button class="mobile-nav-btn" onclick="showPanel('rules',this)"><i class="fa fa-book"></i> Reglas</button>
+</nav>
+
+<div id="admin-wrap">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-stats">
+      <div class="sstat"><div class="sv" id="st-hoy">–</div><div class="sl">Tickets hoy</div></div>
+      <div class="sstat"><div class="sv" id="st-users">–</div><div class="sl">Usuarios</div></div>
+      <div class="sstat"><div class="sv" id="st-total">–</div><div class="sl">Total tickets</div></div>
+      <div class="sstat"><div class="sv" id="st-rec">–</div><div class="sl">Recaudado (L.)</div></div>
+    </div>
+
+    <div class="nav-section">Reportes</div>
+    <div class="nav-item active" id="nav-tickets" onclick="showPanel('tickets',this)">
+      <i class="fa fa-ticket-alt"></i> Reporte de Tickets
+    </div>
+    <div class="nav-item" id="nav-users" onclick="showPanel('users',this)">
+      <i class="fa fa-users"></i> Usuarios Registrados
+    </div>
+    <div class="nav-section" style="margin-top:10px">Configuración</div>
+    <div class="nav-item" id="nav-freeplay" onclick="showPanel('freeplay',this)">
+      <i class="fa fa-gift"></i> Jugada Gratis
+    </div>
+    <div class="nav-item" id="nav-rules" onclick="showPanel('rules',this)">
+      <i class="fa fa-book"></i> Reglas del Juego
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- ─── TICKETS PANEL ─────────────────────────────────────────────────── -->
+    <div class="panel active" id="panel-tickets">
+      <div class="panel-title"><i class="fa fa-ticket-alt"></i> Reporte de Tickets</div>
+
+      <div class="filter-bar">
+        <h3>Filtros de búsqueda</h3>
+        <div class="filter-row">
+          <div class="fld"><label>N° Ticket</label><input type="number" id="f-ticket" placeholder="ej: 12"></div>
+          <div class="fld"><label>N° Sorteo</label><input type="number" id="f-sorteo" placeholder="ej: 5"></div>
+          <div class="fld"><label>Fecha</label><input type="date" id="f-fecha"></div>
+          <div class="fld"><label>Nombre usuario</label><input type="text" id="f-nombre" placeholder="ej: Juan"></div>
+          <div class="fld"><label>Correo</label><input type="text" id="f-correo" placeholder="ej: correo@..."></div>
+          <button class="btn-filter" onclick="loadTickets()"><i class="fa fa-search"></i> Buscar</button>
+          <button class="btn-clear" onclick="clearTicketFilters()"><i class="fa fa-times"></i> Limpiar</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <h3>Transacciones</h3>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="rec-count" id="rec-count">–</span>
+            <button class="btn-refresh" onclick="loadTickets()"><i class="fa fa-sync-alt" id="ref-ico"></i> Actualizar</button>
+          </div>
+        </div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr>
+              <th>Ticket</th><th>Sorteo</th><th>Fecha</th><th>Hora</th>
+              <th>Usuario</th><th>Celular</th><th>Números</th><th>Total</th><th>Tipo</th><th>Registrado</th>
+            </tr></thead>
+            <tbody id="tickets-body"><tr class="loading-row"><td colspan="10"><i class="fa fa-spinner fa-spin"></i> Cargando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── USERS PANEL ───────────────────────────────────────────────────── -->
+    <div class="panel" id="panel-users">
+      <div class="panel-title"><i class="fa fa-users"></i> Usuarios Registrados</div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <h3>Listado de usuarios (más reciente primero)</h3>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="rec-count" id="users-count">–</span>
+            <button class="btn-refresh" onclick="loadUsers()"><i class="fa fa-sync-alt" id="usr-ref-ico"></i> Actualizar</button>
+          </div>
+        </div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr><th>#</th><th>Nombre</th><th>Correo</th><th>Celular</th><th>DNI</th><th>Registrado</th></tr></thead>
+            <tbody id="users-body"><tr class="loading-row"><td colspan="6"><i class="fa fa-spinner fa-spin"></i> Cargando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── FREE PLAY PANEL ───────────────────────────────────────────────── -->
+    <div class="panel" id="panel-freeplay">
+      <div class="panel-title"><i class="fa fa-gift"></i> Jugada Gratis</div>
+      <div class="fp-card">
+        <h3>Control de Jugada Gratis</h3>
+        <p>Activa o desactiva el beneficio de jugada gratis diaria para todos los usuarios. Cuando está desactivada, los usuarios no podrán usar su jugada gratuita del día.</p>
+        <div class="toggle-wrap">
+          <label class="toggle-switch">
+            <input type="checkbox" id="fp-toggle" onchange="toggleFreePlay(this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label" id="fp-label">Cargando...</span>
+        </div>
+        <div class="fp-status on" id="fp-status-msg">La jugada gratis está <strong>habilitada</strong> para todos los usuarios</div>
+      </div>
+    </div>
+
+    <!-- ─── RULES PANEL ───────────────────────────────────────────────────── -->
+    <div class="panel" id="panel-rules">
+      <div class="panel-title"><i class="fa fa-book"></i> Reglas del Juego</div>
+      <div class="rules-card">
+        <h3>Políticas de RIFON</h3>
+        <div class="rule-item">
+          <div class="rule-icon">🏆</div>
+          <div class="rule-text">
+            <h4>Reclamación de premios</h4>
+            <p>Los premios se reclaman únicamente a través del canal oficial de WhatsApp al número <strong style="color:var(--am)">+504 9441-1539</strong>. No se aceptan reclamaciones por otros medios.</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">💸</div>
+          <div class="rule-text">
+            <h4>Método de pago de premios</h4>
+            <p>Los premios son pagados exclusivamente por <strong style="color:var(--am)">transferencia electrónica</strong>. No se realizan pagos en efectivo ni por otros métodos.</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">✅</div>
+          <div class="rule-text">
+            <h4>Confirmación de participación</h4>
+            <p>El ticket generado en la app NO confirma participación. La confirmación se realiza cuando el administrador recibe el comprobante de pago por WhatsApp y la valida.</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">🎁</div>
+          <div class="rule-text">
+            <h4>Jugada gratis diaria</h4>
+            <p>Cada usuario tiene derecho a 1 jugada gratis al día (máx L.10, 1 número). No requiere comprobante de pago. Sujeta a disponibilidad según configuración del administrador.</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">⏰</div>
+          <div class="rule-text">
+            <h4>Horarios de sorteo</h4>
+            <p>Los sorteos se realizan a las <strong style="color:var(--am)">11:00 AM, 2:00 PM y 9:00 PM</strong> (hora Honduras). La selección de números se bloquea 15 minutos antes de cada sorteo.</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">💰</div>
+          <div class="rule-text">
+            <h4>Premio</h4>
+            <p>El premio es de <strong style="color:var(--am)">70 veces</strong> el monto apostado por cada número acertado. Cupos máximos de L.300 por número por sorteo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const token   = localStorage.getItem('token');
+const correo  = localStorage.getItem('correo') || '';
+const ADMIN   = 'saddam.shamir@gmail.com';
+
+async function init() {
+  if (!token) { showDenied(); return; }
+  if (correo !== ADMIN) { showDenied(); return; }
+  // Double-check with server
+  const r = await fetch('/api/admin/stats', { headers:{ Authorization:`Bearer ${token}` } });
+  if (!r.ok) { showDenied(); return; }
+  const stats = await r.json();
+  document.getElementById('admin-user').textContent = correo;
+  document.getElementById('admin-wrap').classList.add('show');
+  renderStats(stats);
+  updateFreePlayUI(stats.freePlayEnabled);
+  loadTickets(); // Load today's tickets by default
+  setInterval(()=>{ loadStats(); loadTickets(); }, 30000);
+}
+
+function showDenied() { document.getElementById('access-denied').classList.add('show'); }
+function logout() { localStorage.clear(); window.location.href='/'; }
+
+// ── PANEL NAVIGATION ───────────────────────────────────────────────────────────
+function showPanel(name, clickedEl) {
+  // Hide all panels
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  // Deactivate sidebar nav items
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+  // Show target panel
+  document.getElementById(`panel-${name}`).classList.add('active');
+  // Activate nav item in sidebar
+  const sideNav = document.getElementById(`nav-${name}`);
+  if (sideNav) sideNav.classList.add('active');
+  // Activate mobile btn
+  if (clickedEl) clickedEl.classList.add('active');
+  // Load data for panel
+  if (name === 'users') loadUsers();
+  if (name === 'tickets') loadTickets();
+}
+
+// ── STATS ──────────────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const r = await fetch('/api/admin/stats', { headers:{ Authorization:`Bearer ${token}` } });
+    if (!r.ok) return;
+    const d = await r.json();
+    renderStats(d);
+    updateFreePlayUI(d.freePlayEnabled);
+  } catch(e){}
+}
+function renderStats(d) {
+  document.getElementById('st-hoy').textContent   = d.ticketsHoy;
+  document.getElementById('st-users').textContent = d.totalUsuarios;
+  document.getElementById('st-total').textContent = d.totalTickets;
+  document.getElementById('st-rec').textContent   = parseFloat(d.totalRecaudado).toFixed(2);
+}
+
+// ── TICKETS ────────────────────────────────────────────────────────────────────
+async function loadTickets() {
+  setRefIco('ref-ico', true);
+  const params = new URLSearchParams();
+  const ticket  = document.getElementById('f-ticket')?.value;
+  const sorteo  = document.getElementById('f-sorteo')?.value;
+  const fecha   = document.getElementById('f-fecha')?.value;
+  const nombre  = document.getElementById('f-nombre')?.value;
+  const correoF = document.getElementById('f-correo')?.value;
+  if (ticket)  params.set('ticket_id',    ticket);
+  if (sorteo)  params.set('numero_sorteo', sorteo);
+  if (fecha)   params.set('fecha',         fecha);
+  if (nombre)  params.set('nombre',        nombre);
+  if (correoF) params.set('correo',        correoF);
+  try {
+    const r = await fetch(`/api/admin/tickets${params.toString()?'?'+params:''}`, { headers:{ Authorization:`Bearer ${token}` } });
+    if (!r.ok) { if (r.status===403) showDenied(); return; }
+    const data = await r.json();
+    renderTickets(data);
+  } catch(e){ console.error(e); }
+  finally { setRefIco('ref-ico', false); }
+}
+
+function clearTicketFilters() {
+  ['f-ticket','f-sorteo','f-fecha','f-nombre','f-correo'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  loadTickets();
+}
+
+function renderTickets(rows) {
+  document.getElementById('rec-count').textContent = `${rows.length} registros`;
+  const tbody = document.getElementById('tickets-body');
+  if (!rows.length) { tbody.innerHTML='<tr class="empty-row"><td colspan="10">No se encontraron registros</td></tr>'; return; }
+  tbody.innerHTML = rows.map(r => {
+    const nums = parseNums(r.numeros_seleccionados);
+    const numsHtml = nums.map(n=>`<span class="num-chip">${String(n.numero).padStart(2,'0')}: L.${n.cantidad}</span>`).join('');
+    return `<tr>
+      <td><span class="tid">#${r.id}</span></td>
+      <td><span class="tid">#${r.numero_sorteo}</span></td>
+      <td style="white-space:nowrap">${fmtDate(r.fecha)}</td>
+      <td style="white-space:nowrap">${fmtTime(r.hora_sorteo)}</td>
+      <td><div style="font-size:12px;font-weight:600">${r.nombre_usuario||'–'}</div><div style="font-size:11px;color:var(--gr)">${r.correo_usuario||''}</div></td>
+      <td style="color:var(--gr);font-size:11px">${r.celular_usuario||'–'}</td>
+      <td style="max-width:180px">${numsHtml}</td>
+      <td style="color:var(--am);font-weight:700;white-space:nowrap">L. ${parseFloat(r.total_apuesta).toFixed(2)}</td>
+      <td>${r.es_gratis?'<span class="gtag">GRATIS</span>':'<span class="ntag">PAGO</span>'}</td>
+      <td style="color:var(--gr);font-size:11px;white-space:nowrap">${fmtDateTime(r.created_at)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── USERS ──────────────────────────────────────────────────────────────────────
+async function loadUsers() {
+  setRefIco('usr-ref-ico', true);
+  try {
+    const r = await fetch('/api/admin/users', { headers:{ Authorization:`Bearer ${token}` } });
+    if (!r.ok) return;
+    const data = await r.json();
+    document.getElementById('users-count').textContent = `${data.length} usuarios`;
+    const tbody = document.getElementById('users-body');
+    if (!data.length) { tbody.innerHTML='<tr class="empty-row"><td colspan="6">Sin usuarios registrados</td></tr>'; return; }
+    tbody.innerHTML = data.map((u,i) => {
+      const initials = ((u.nombre||'?')[0]+(u.apellido||'?')[0]).toUpperCase();
+      return `<tr>
+        <td style="color:var(--gr)">${i+1}</td>
+        <td><div style="display:flex;align-items:center;gap:9px">
+          <div class="user-avatar">${initials}</div>
+          <div><div style="font-size:12px;font-weight:600">${u.nombre||''} ${u.apellido||''}</div></div>
+        </div></td>
+        <td style="color:var(--gr);font-size:12px">${u.correo}</td>
+        <td style="color:var(--gr);font-size:12px">${u.celular||'–'}</td>
+        <td style="color:var(--gr);font-size:12px">${u.dni||'–'}</td>
+        <td style="color:var(--gr);font-size:11px;white-space:nowrap">${fmtDateTime(u.created_at)}</td>
+      </tr>`;
+    }).join('');
+  } catch(e){ console.error(e); }
+  finally { setRefIco('usr-ref-ico', false); }
+}
+
+// ── FREE PLAY ──────────────────────────────────────────────────────────────────
+function updateFreePlayUI(enabled) {
+  const tog = document.getElementById('fp-toggle');
+  const lbl = document.getElementById('fp-label');
+  const msg = document.getElementById('fp-status-msg');
+  if (!tog) return;
+  tog.checked = enabled;
+  lbl.textContent = enabled ? 'Habilitada' : 'Deshabilitada';
+  msg.textContent = enabled
+    ? 'La jugada gratis está habilitada para todos los usuarios'
+    : 'La jugada gratis está deshabilitada. Los usuarios no pueden usar su jugada gratuita.';
+  msg.className = `fp-status ${enabled?'on':'off'}`;
+}
+
+async function toggleFreePlay(enabled) {
+  try {
+    const r = await fetch('/api/admin/free-play', {
+      method:'POST', headers:{ Authorization:`Bearer ${token}`, 'Content-Type':'application/json' },
+      body: JSON.stringify({ enabled })
+    });
+    const d = await r.json();
+    updateFreePlayUI(d.freePlayEnabled);
+  } catch(e) { console.error(e); alert('Error al actualizar configuración'); }
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+function parseNums(val) {
+  try { return JSON.parse(typeof val==='string'?val:JSON.stringify(val)); } catch{ return []; }
+}
+function fmtDate(val) {
+  if (!val) return '–';
+  const [y,m,d] = String(val).split('T')[0].split('-');
+  if (!d) return val;
+  const mo=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${Number(d)} ${mo[Number(m)-1]} ${y}`;
+}
+function fmtTime(val) {
+  if (!val) return '–';
+  const p=String(val).split(':'),h=Number(p[0]),min=p[1]||'00';
+  return `${h>12?h-12:h===0?12:h}:${min} ${h>=12?'PM':'AM'}`;
+}
+function fmtDateTime(val) {
+  if (!val) return '–';
+  try {
+    return new Date(val).toLocaleString('es-HN',{timeZone:'America/Tegucigalpa',hour12:true,
+      year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  } catch { return String(val).substring(0,16); }
+}
+function setRefIco(id, loading) {
+  const el = document.getElementById(id);
+  if (el) el.className = loading ? 'fa fa-sync-alt spin' : 'fa fa-sync-alt';
+}
+
+// Keyboard shortcuts on filter inputs
+document.addEventListener('DOMContentLoaded', () => {
+  ['f-ticket','f-sorteo','f-fecha','f-nombre','f-correo'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('keydown',e=>{ if(e.key==='Enter') loadTickets(); });
+  });
+});
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RIFON – Jugar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--v:#0f4a28;--vm:#1a6b3a;--vg:#2ecc70;--am:#f0c400;--tx:#f0f0f0;--gr:#8a9a8f;--bg:#091f11;--card:rgba(15,74,40,.5);--dk:rgba(5,18,10,.75);--bd:rgba(240,196,0,.2);--err:#ff5252;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;}
+    /* HEADER */
+    header{background:rgba(5,18,10,.96);border-bottom:1px solid var(--bd);backdrop-filter:blur(14px);position:sticky;top:0;z-index:100;padding:0 16px;}
+    .hi{max-width:920px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:62px;gap:10px;}
+    .brand{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+    .brand-icon{font-size:24px;}
+    .brand-text .app-name{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:900;background:linear-gradient(90deg,var(--am),var(--vg));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .brand-text .app-slogan{font-size:10px;color:var(--gr);letter-spacing:.5px;}
+    .hr{display:flex;align-items:center;gap:8px;}
+    .user-badge{background:var(--card);border:1px solid var(--bd);border-radius:50px;padding:5px 12px;font-size:12px;color:var(--gr);display:flex;align-items:center;gap:5px;max-width:170px;overflow:hidden;}
+    .user-badge i{color:var(--am);flex-shrink:0;}
+    .user-badge span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .btn-admin{background:rgba(240,196,0,.13);border:1px solid rgba(240,196,0,.3);color:var(--am);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;text-decoration:none;font-family:'Montserrat',sans-serif;display:none;transition:all .2s;}
+    .btn-admin:hover{background:rgba(240,196,0,.22);}
+    .btn-logout{background:none;border:1px solid rgba(255,82,82,.33);color:#ff8888;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer;transition:all .2s;}
+    .btn-logout:hover{background:rgba(255,82,82,.14);}
+    /* DRAW BANNER */
+    #draw-banner{max-width:920px;margin:18px auto 0;padding:0 16px;}
+    .draw-card{background:linear-gradient(135deg,var(--vm),var(--v));border:1px solid var(--bd);border-radius:18px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:0 8px 28px rgba(0,0,0,.3);}
+    .draw-info h2{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:800;color:var(--am);}
+    .draw-info p{font-size:13px;color:rgba(240,240,240,.6);margin-top:3px;}
+    .draw-status{padding:7px 16px;border-radius:50px;font-weight:700;font-size:12px;font-family:'Montserrat',sans-serif;display:flex;align-items:center;gap:6px;}
+    .draw-status.open{background:rgba(46,204,112,.16);color:var(--vg);border:1px solid rgba(46,204,112,.28);}
+    .draw-status.locked{background:rgba(255,82,82,.16);color:#ff8888;border:1px solid rgba(255,82,82,.28);}
+    .pulse{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blk 1s infinite;}
+    @keyframes blk{0%,100%{opacity:1}50%{opacity:.3}}
+    /* FREE PLAY BANNER */
+    #free-banner{max-width:920px;margin:12px auto 0;padding:0 16px;}
+    .free-card{background:linear-gradient(135deg,rgba(46,204,112,.15),rgba(240,196,0,.1));border:1px solid rgba(46,204,112,.28);border-radius:14px;padding:13px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .free-card .fi{font-size:26px;flex-shrink:0;}
+    .free-card .finfo{flex:1;}
+    .free-card .ft{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:var(--am);}
+    .free-card .fd{font-size:11px;color:rgba(240,240,240,.6);margin-top:2px;}
+    .free-badge{background:rgba(46,204,112,.18);border:1px solid rgba(46,204,112,.3);color:var(--vg);border-radius:50px;padding:5px 13px;font-size:11px;font-weight:700;font-family:'Montserrat',sans-serif;white-space:nowrap;}
+    .free-badge.used{background:rgba(100,100,100,.18);border-color:rgba(100,100,100,.28);color:var(--gr);}
+    .free-badge.off{background:rgba(255,82,82,.12);border-color:rgba(255,82,82,.25);color:#ff8888;}
+    /* NOTICE BANNER */
+    .notice-banner{max-width:920px;margin:12px auto 0;padding:0 16px;}
+    .notice-card{background:rgba(240,196,0,.08);border:1px solid rgba(240,196,0,.22);border-radius:14px;padding:13px 18px;display:flex;align-items:flex-start;gap:12px;}
+    .notice-card .ni{font-size:20px;flex-shrink:0;margin-top:1px;}
+    .notice-card .nt{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:800;color:var(--am);margin-bottom:3px;}
+    .notice-card .nd{font-size:12px;color:rgba(240,240,240,.65);line-height:1.6;}
+    /* MAIN */
+    .main-wrap{max-width:920px;margin:18px auto;padding:0 16px 120px;}
+    .sec-title{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;color:var(--am);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+    /* GRID */
+    #number-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-bottom:8px;}
+    .num-btn{aspect-ratio:1;border-radius:9px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;border:1.5px solid rgba(255,255,255,.09);background:rgba(15,74,40,.6);color:var(--tx);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+    .num-btn:hover:not(:disabled){border-color:var(--am);color:var(--am);transform:scale(1.09);z-index:2;}
+    .num-btn.selected{background:linear-gradient(135deg,var(--am),#c99800);color:var(--v);border-color:var(--am);box-shadow:0 0 14px rgba(240,196,0,.38);}
+    .num-btn.free-sel{background:linear-gradient(135deg,var(--vg),#1a9943);color:#fff;border-color:var(--vg);box-shadow:0 0 14px rgba(46,204,112,.38);}
+    .num-btn:disabled{opacity:.3;cursor:not-allowed;background:rgba(0,0,0,.3);}
+    .num-btn.full{opacity:.38;background:rgba(200,0,0,.13);border-color:rgba(255,82,82,.22);color:#ff8888;cursor:not-allowed;}
+    .grid-hint{font-size:12px;color:var(--gr);margin-bottom:12px;}
+    /* Free toggle */
+    .free-toggle{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 13px;background:rgba(46,204,112,.08);border:1px solid rgba(46,204,112,.18);border-radius:10px;cursor:pointer;transition:all .2s;}
+    .free-toggle input[type=checkbox]{width:17px;height:17px;accent-color:var(--vg);cursor:pointer;flex-shrink:0;}
+    .free-toggle label{font-size:13px;color:rgba(240,240,240,.8);cursor:pointer;line-height:1.4;}
+    .free-toggle label strong{color:var(--vg);}
+    /* SELECTED LIST */
+    #selected-section{margin-bottom:22px;}
+    #selected-list{display:flex;flex-direction:column;gap:9px;}
+    .sel-item{background:var(--dk);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;animation:fi .22s ease;}
+    .sel-item.gratis{border-color:rgba(46,204,112,.28);}
+    @keyframes fi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    .sel-num{width:42px;height:42px;border-radius:9px;background:linear-gradient(135deg,var(--am),#c59800);color:var(--v);font-weight:900;font-size:15px;font-family:'Montserrat',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .sel-num.gratis{background:linear-gradient(135deg,var(--vg),#1a9943);}
+    .sel-info{flex:1;min-width:90px;}
+    .sel-info p{font-size:11px;color:var(--gr);}
+    .sel-prize{color:var(--vg);font-weight:700;font-size:13px;}
+    .sel-controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+    .sel-controls label{font-size:11px;color:var(--gr);}
+    .sel-controls select{background:rgba(0,0,0,.4);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:6px 9px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;outline:none;}
+    .sel-controls select:focus{border-color:var(--am);}
+    .btn-rm{background:rgba(255,82,82,.12);border:1px solid rgba(255,82,82,.22);color:#ff8888;border-radius:7px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .2s;}
+    .btn-rm:hover{background:rgba(255,82,82,.26);}
+    .gbadge{background:rgba(46,204,112,.18);color:var(--vg);font-size:10px;font-weight:700;padding:2px 6px;border-radius:50px;font-family:'Montserrat',sans-serif;}
+    /* CONFIRM BAR */
+    #confirm-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(5,18,10,.97);border-top:1px solid var(--bd);padding:14px 18px;backdrop-filter:blur(14px);z-index:50;}
+    #confirm-bar .inner{max-width:920px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+    .total-badge{flex:1;background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:9px 14px;}
+    .total-badge p{font-size:10px;color:var(--gr);}
+    .total-badge strong{font-size:17px;font-family:'Montserrat',sans-serif;color:var(--am);}
+    .btn-confirm{padding:13px 24px;background:linear-gradient(135deg,var(--am),#c99800);color:var(--v);font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;border:none;border-radius:11px;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 6px 20px rgba(240,196,0,.3);transition:all .2s;white-space:nowrap;}
+    .btn-confirm:hover{transform:translateY(-2px);}
+    .btn-confirm:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    /* MODALS */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:16px;}
+    .overlay.open{display:flex;animation:fi .2s ease;}
+    .modal{background:#0a2614;border:1px solid var(--bd);border-radius:22px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;box-shadow:0 28px 72px rgba(0,0,0,.6);}
+    .modal-hd{background:linear-gradient(135deg,var(--vm),var(--v));padding:22px;border-radius:22px 22px 0 0;text-align:center;}
+    .modal-hd h2{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:800;color:var(--am);}
+    .modal-hd p{font-size:12px;color:rgba(240,240,240,.6);margin-top:3px;}
+    .modal-bd{padding:20px;}
+    .srow{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;gap:10px;}
+    .srow:last-child{border-bottom:none;}
+    .srow span:first-child{color:var(--gr);white-space:nowrap;}
+    .srow span:last-child{color:var(--tx);text-align:right;font-weight:500;}
+    .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;}
+    .chip{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:5px 10px;font-size:12px;}
+    .chip strong{color:var(--am);}
+    .chip .prize{color:var(--vg);font-size:11px;}
+    .modal-ft{padding:14px 20px;border-top:1px solid var(--bd);display:flex;gap:8px;flex-wrap:wrap;}
+    .btn-wa{flex:1;padding:13px;border-radius:11px;background:#25d366;color:#fff;font-weight:800;font-size:13px;font-family:'Montserrat',sans-serif;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;}
+    .btn-wa:hover{background:#1fba58;}
+    .btn-cancel{padding:13px 16px;border-radius:11px;background:var(--card);border:1px solid var(--bd);color:var(--gr);font-size:13px;cursor:pointer;transition:all .2s;}
+    .btn-cancel:hover{border-color:var(--am);color:var(--tx);}
+    /* SUCCESS MODAL */
+    .success-modal .modal-hd{background:linear-gradient(135deg,#0f5e2a,#0c3d1c);}
+    .ticket-preview{width:100%;border-radius:12px;margin:12px 0;border:1px solid rgba(240,196,0,.2);}
+    .btn-dl{width:100%;padding:12px;background:linear-gradient(135deg,var(--am),#c99800);color:var(--v);font-weight:800;font-size:13px;font-family:'Montserrat',sans-serif;border:none;border-radius:10px;cursor:pointer;transition:all .2s;margin-bottom:10px;}
+    .btn-dl:hover{transform:translateY(-1px);}
+    /* WA DISCLAIMER in success */
+    .wa-disclaimer{background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.25);border-radius:12px;padding:14px;margin:14px 0;font-size:12px;color:rgba(240,240,240,.8);line-height:1.7;}
+    .wa-disclaimer .wd-title{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:var(--vg);margin-bottom:6px;}
+    .wa-disclaimer .wd-step{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;}
+    .wa-disclaimer .wd-step .step-num{background:var(--vg);color:#0f4a28;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px;}
+    /* LOCKED */
+    #locked-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);z-index:150;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;}
+    #locked-overlay.show{display:flex;}
+    /* Admin mode: locked overlay is always hidden regardless of JS state */
+    body.admin-mode #locked-overlay,
+    body.admin-mode #locked-overlay.show{display:none !important;}
+    .lock-icon{font-size:58px;margin-bottom:14px;animation:pk 1.5s infinite;}
+    @keyframes pk{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+    #locked-overlay h2{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:800;color:var(--am);margin-bottom:8px;}
+    #locked-overlay p{color:var(--gr);font-size:14px;max-width:340px;line-height:1.6;}
+    /* TOAST */
+    #toast{position:fixed;bottom:94px;left:50%;transform:translateX(-50%);background:rgba(5,18,10,.95);border:1px solid var(--bd);border-radius:50px;padding:11px 22px;font-size:13px;backdrop-filter:blur(12px);z-index:300;display:none;white-space:nowrap;max-width:90vw;text-align:center;}
+    #toast.show{display:block;animation:ti .28s ease;}
+    @keyframes ti{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    .empty-state{text-align:center;padding:28px 0;color:var(--gr);}
+    .empty-state span{font-size:34px;display:block;margin-bottom:8px;}
+    @media(max-width:500px){#number-grid{gap:3px;}.num-btn{font-size:11px;border-radius:7px;}.app-name{font-size:15px;}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="hi">
+    <div class="brand">
+      <div class="brand-icon">🎰</div>
+      <div class="brand-text"><div class="app-name">RIFON</div><div class="app-slogan">Pagos al instante</div></div>
+    </div>
+    <div class="hr">
+      <div class="user-badge"><i class="fa fa-user"></i><span id="user-name">...</span></div>
+      <a href="/admin" target="_blank" class="btn-admin" id="admin-btn"><i class="fa fa-chart-bar"></i> Admin</a>
+      <button class="btn-logout" onclick="logout()"><i class="fa fa-sign-out-alt"></i></button>
+    </div>
+  </div>
+</header>
+
+<div id="draw-banner">
+  <div class="draw-card">
+    <div class="draw-info">
+      <h2 id="draw-name">Cargando sorteo...</h2>
+      <p id="draw-date">Obteniendo información...</p>
+    </div>
+    <div class="draw-status open" id="draw-status"><div class="pulse"></div><span>Cargando...</span></div>
+  </div>
+</div>
+
+<div id="free-banner">
+  <div class="free-card">
+    <div class="fi">🎁</div>
+    <div class="finfo">
+      <div class="ft">Sorteo Gratis del Día</div>
+      <div class="fd">Elige 1 número, hasta L.10, sin comprobante de pago</div>
+    </div>
+    <div class="free-badge" id="free-status-badge">Disponible hoy</div>
+  </div>
+</div>
+
+<!-- NOTICE: ticket is not confirmation -->
+<div class="notice-banner">
+  <div class="notice-card">
+    <div class="ni">⚠️</div>
+    <div>
+      <div class="nt">Importante: Este ticket NO confirma tu participación</div>
+      <div class="nd">Para confirmar tu jugada debes enviar por WhatsApp una captura de tu comprobante de pago al número <strong style="color:var(--am)">+504 9441-1539</strong>. Solo cuando recibas confirmación por ese canal tu participación estará activa.</div>
+    </div>
+  </div>
+</div>
+
+<div class="main-wrap">
+  <div id="grid-section" style="margin-bottom:22px">
+    <div class="sec-title">🔢 Selecciona tus números (0–99)</div>
+    <p class="grid-hint">Toca un número para elegirlo. Los números en rojo ya no tienen cupo disponible.</p>
+    <div id="free-toggle-wrap">
+      <div class="free-toggle" onclick="toggleFreeMode()">
+        <input type="checkbox" id="free-chk">
+        <label for="free-chk">Activar <strong>jugada gratis del día</strong> — 1 número, máx L.10, sin comprobante</label>
+      </div>
+    </div>
+    <div id="number-grid"></div>
+  </div>
+
+  <div id="selected-section">
+    <div class="sec-title">⭐ Tus números seleccionados</div>
+    <div id="selected-list">
+      <div class="empty-state"><span>👆</span>Selecciona números en la grilla para comenzar</div>
+    </div>
+  </div>
+</div>
+
+<div id="confirm-bar">
+  <div class="inner">
+    <div class="total-badge"><p>Total apostado</p><strong id="total-disp">L. 0.00</strong></div>
+    <button class="btn-confirm" id="btn-confirm" onclick="openConfirmModal()"><i class="fa fa-check-circle"></i> Confirmar</button>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="overlay" id="confirm-modal">
+  <div class="modal">
+    <div class="modal-hd"><h2>Resumen de tu Jugada</h2><p>Revisa los detalles antes de confirmar</p></div>
+    <div class="modal-bd" id="modal-bd"></div>
+    <div class="modal-ft">
+      <button class="btn-cancel" onclick="closeModal('confirm-modal')">✕ Cancelar</button>
+      <button class="btn-wa" id="btn-send" onclick="submitTicket()"><i class="fa fa-check"></i> Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="overlay" id="success-modal">
+  <div class="modal success-modal">
+    <div class="modal-hd"><h2>¡Ticket Generado!</h2><p>Tu participación fue registrada</p></div>
+    <div class="modal-bd">
+      <canvas id="ticket-canvas" style="display:none"></canvas>
+      <img id="ticket-img" class="ticket-preview" src="" alt="Ticket">
+      <button class="btn-dl" onclick="downloadTicket()"><i class="fa fa-download"></i> &nbsp;Guardar mi Ticket</button>
+      <div class="wa-disclaimer">
+        <div class="wd-title">Para confirmar tu participación:</div>
+        <div class="wd-step"><div class="step-num">1</div><span>Guarda tu ticket usando el botón de arriba</span></div>
+        <div class="wd-step"><div class="step-num">2</div><span>Presiona el botón de WhatsApp y envía el mensaje</span></div>
+        <div class="wd-step"><div class="step-num">3</div><span>Adjunta en el chat el comprobante de tu pago</span></div>
+        <div class="wd-step"><div class="step-num">4</div><span>Espera la confirmación del administrador para que tu jugada quede activa</span></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-cancel" onclick="closeModal('success-modal')">Cerrar</button>
+      <button class="btn-wa" id="btn-wa-send"><i class="fab fa-whatsapp"></i> Enviar por WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOCKED -->
+<div id="locked-overlay">
+  <div class="lock-icon">🔒</div>
+  <h2>Sorteo en progreso</h2>
+  <p id="locked-msg">La selección está suspendida temporalmente. Se habilitará 5 minutos después del sorteo.</p>
+</div>
+
+<div id="toast"></div>
+
+<!-- Guard: runs before lottery.js — redirects if no token, marks admin immediately -->
+<script>
+(function() {
+  var token = localStorage.getItem('token');
+  if (!token) { window.location.replace('/'); return; }
+
+  // Decode JWT payload (base64, no verify — server will verify on every API call)
+  try {
+    var payload = JSON.parse(atob(token.split('.')[1]));
+    var ADMIN   = 'saddam.shamir@gmail.com';
+    if (payload && payload.correo === ADMIN) {
+      // Mark body immediately so CSS hides the overlay before any JS runs
+      document.body.classList.add('admin-mode');
+      localStorage.setItem('isAdmin', '1');
+    } else {
+      localStorage.setItem('isAdmin', '0');
+    }
+  } catch(e) {
+    // Corrupted token → back to login
+    localStorage.clear();
+    window.location.replace('/');
+  }
+})();
+</script>
+
+<script src="/js/lottery.js"></script>
+</body>
+</html>
